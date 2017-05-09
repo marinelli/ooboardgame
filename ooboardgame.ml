@@ -1,3 +1,12 @@
+(*
+ * Author      : Giorgio Marinelli
+ * Year        : 2011
+ *
+ * Description : A simple chess engine
+ *
+ *)
+
+
 
 (* some exceptions and data types *)
 
@@ -45,7 +54,7 @@ and (--) (x0, y0) (x1, y1) = (x0 - x1, y0 - y1)
 let removeBlanks x =
   let x = Str.global_replace (Str.regexp "^[ \t]+\\|[ \t]+$") "" x in
   let x = Str.global_replace (Str.regexp "[ \t][ \t]+") " " x in
-  let x = String.lowercase x in x
+  let x = String.lowercase_ascii x in x
 
 
 (* return a string of a pair *)
@@ -456,8 +465,8 @@ object (self)
     in
 
     match pieceColor with
-      |	"White" -> String.lowercase (getMarker pieceType)
-      | "Black" -> String.uppercase (getMarker pieceType)
+      |	"White" -> String.lowercase_ascii (getMarker pieceType)
+      | "Black" -> String.uppercase_ascii (getMarker pieceType)
       | _ -> raise Unknown_color
 
 
@@ -1546,27 +1555,27 @@ object (self)
 
       | "history" :: t ->
 	(
-	  try
-	    if t = [] then
-	      let numberOfMoves = self#getHistory#howManyMoves () in
-	      self#history numberOfMoves
-	    else
-	      let movesToPrint = int_of_string (List.hd t) in
-	      self#history movesToPrint
-	  with
-	    | Failure ("int_of_string") -> print_string "Wrong syntax: history [number of moves]\n"
+	  if t = [] then
+	    let numberOfMoves = self#getHistory#howManyMoves () in
+	    self#history numberOfMoves
+	  else
+          (
+            match int_of_string (List.hd t) with
+            | exception (Failure _) -> print_string "Wrong syntax: history [number of moves]\n"
+            | movesToPrint          -> self#history movesToPrint
+          )
 	)
 
       | "undo" :: t ->
 	(
-	  try
-	    if t = [] then
-	      self#undo 1
-	    else
-	      let movesToUndo = int_of_string (List.hd t) in
-	      self#undo movesToUndo
-	  with
-	    | Failure ("int_of_string") -> print_string "Wrong syntax: history [number of moves]\n"
+	  if t = [] then
+	    self#undo 1
+	  else
+          (
+            match int_of_string (List.hd t) with
+            | exception (Failure _) -> print_string "Wrong syntax: history [number of moves]\n"
+            | movesToUndo           -> self#undo movesToUndo
+          )
 	)
 
       | "print" :: [] ->
