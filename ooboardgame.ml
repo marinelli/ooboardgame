@@ -1519,7 +1519,7 @@ object (self)
 
 
   method private insertCommand () : unit =
-    print_string "$ " ;
+    print_string "> " ;
     let curCommand = read_line () in
     let tokenizedCommand = Str.split (Str.regexp "[ \t]+") curCommand in
 
